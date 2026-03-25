@@ -23,5 +23,13 @@ namespace Notes_App_C_.Data
                 .HasIndex(u => u.Username)
                 .IsUnique();
         }
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                // Tohle je tvůj Connection String přímo v kódu jako pojistka
+                optionsBuilder.UseNpgsql("Host=aws-1-eu-west-1.pooler.supabase.com;Port=5432;Database=postgres;Username=postgres.ledestbbswhpgxyzkayi;Password=7456hFdBMk_74;SSL Mode=Require;Trust Server Certificate=true");
+            }
+        }
     }
 }
