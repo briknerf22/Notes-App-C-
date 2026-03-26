@@ -14,6 +14,38 @@ namespace Notes_App_C_.Controllers
         }
 
         [HttpGet]
+        public IActionResult Login() => View();
+
+        [HttpPost]
+        public IActionResult Login(LoginViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                // Hledáme uživatele v databázi podle jména a hesla
+                var user = _context.Users.FirstOrDefault(u => u.Username == model.Username && u.PasswordHash == model.Password);
+
+                if (user != null)
+                {
+                    // --- PŘIHLÁŠENÍ ---
+                    // Uložíme ID uživatele do Session, abychom věděli, kdo je přihlášen
+                    HttpContext.Session.SetInt32("UserId", user.Id);
+                    HttpContext.Session.SetString("Username", user.Username);
+
+                    return RedirectToAction("Index", "Home");
+                }
+
+                ModelState.AddModelError("", "Neplatné jméno nebo heslo.");
+            }
+            return View(model);
+        }
+
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear(); // Vymaže session a odhlásí uživatele
+            return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
         public IActionResult Register() => View();
 
         [HttpPost]
