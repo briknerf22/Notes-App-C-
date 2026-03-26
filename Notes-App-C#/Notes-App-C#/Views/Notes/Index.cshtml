@@ -1,0 +1,33 @@
+﻿@model IEnumerable<Notes_App_C_.Models.Note>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Moje poznámky</h2>
+    <a asp-action="Create" class="btn btn-primary">➕ Nová poznámka</a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Zatím nemáte žádné poznámky. Začněte tím, že vytvoříte první!</div>
+}
+else
+{
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-4 mb-3">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Title</h5>
+                        <p class="card-text text-truncate">@item.Content</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">@item.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</small>
+                            <form asp-action="Delete" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Opravdu chcete tuto poznámku smazat?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Smazat</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

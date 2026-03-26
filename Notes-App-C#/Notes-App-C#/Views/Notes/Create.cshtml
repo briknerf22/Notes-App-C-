@@ -1,0 +1,28 @@
+﻿@model Notes_App_C_.Models.Note
+
+<h2>Nová poznámka</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group mb-3">
+                <label class="control-label">Název</label>
+                <input asp-for="Title" class="form-control" placeholder="Např. Nákupní seznam" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="control-label">Obsah</label>
+                <textarea asp-for="Content" class="form-control" rows="5" placeholder="Sem napište text poznámky..."></textarea>
+                <span asp-validation-for="Content" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-success">Uložit poznámku</button>
+                <a asp-action="Index" class="btn btn-secondary">Zpět na seznam</a>
+            </div>
+        </form>
+    </div>
+</div>
