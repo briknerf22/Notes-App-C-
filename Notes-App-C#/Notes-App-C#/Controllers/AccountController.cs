@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BCrypt.Net; // Pro hashování hese
+using Microsoft.AspNetCore.Mvc;
 using Notes_App_C_.Data;
 using Notes_App_C_.Models;
+using Microsoft.EntityFrameworkCore;   
 
 namespace Notes_App_C_.Controllers
 {
@@ -21,16 +23,14 @@ namespace Notes_App_C_.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Hledáme uživatele v databázi podle jména a hesla
-                var user = _context.Users.FirstOrDefault(u => u.Username == model.Username && u.PasswordHash == model.Password);
+                // 1. Najdeme uživatele podle jména
+                var user = _context.Users.FirstOrDefault(u => u.Username == model.Username);
 
-                if (user != null)
+                // 2. Ověříme, zda uživatel existuje a zda zadané heslo odpovídá hashi v DB
+                if (user != null && BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash))
                 {
-                    // --- PŘIHLÁŠENÍ ---
-                    // Uložíme ID uživatele do Session, abychom věděli, kdo je přihlášen
                     HttpContext.Session.SetInt32("UserId", user.Id);
                     HttpContext.Session.SetString("Username", user.Username);
-
                     return RedirectToAction("Index", "Home");
                 }
 
@@ -64,7 +64,7 @@ namespace Notes_App_C_.Controllers
                 {
                     Username = model.Username,
                     Email = model.Email,
-                    PasswordHash = model.Password // Poznámka: V ostrém provozu se heslo musí hashovat!
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password) // Tady se heslo "rozmixuje"
                 };
 
                 _context.Users.Add(user);
@@ -73,6 +73,29 @@ namespace Notes_App_C_.Controllers
                 return RedirectToAction("Index", "Home");
             }
             return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult DeleteAccount() => View();
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteAccount(string password)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null) return RedirectToAction("Login");
+
+            var user = await _context.Users.Include(u => u.Notes).FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user != null && BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
+            {
+                _context.Users.Remove(user); // Smaže uživatele i jeho poznámky (díky kaskádě v DB)
+                await _context.SaveChangesAsync();
+                HttpContext.Session.Clear();
+                return RedirectToAction("Index", "Home");
+            }
+
+            ModelState.AddModelError("", "Nesprávné heslo.");
+            return View();
         }
     }
 }

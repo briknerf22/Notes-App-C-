@@ -15,16 +15,20 @@ namespace Notes_App_C_.Controllers
         }
 
         // Zobrazení seznamu poznámek - seřazeno od nejnovějších 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(bool onlyImportant = false)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null) return RedirectToAction("Login", "Account");
 
-            var notes = await _context.Notes
-                .Where(n => n.UserId == userId)
-                .OrderByDescending(n => n.CreatedAt) // Splnění požadavku na chronologické řazení 
-                .ToListAsync();
+            var query = _context.Notes.Where(n => n.UserId == userId);
 
+            if (onlyImportant)
+            {
+                query = query.Where(n => n.IsImportant);
+            }
+
+            var notes = await query.OrderByDescending(n => n.CreatedAt).ToListAsync();
+            ViewBag.OnlyImportant = onlyImportant;
             return View(notes);
         }
 
@@ -82,6 +86,21 @@ namespace Notes_App_C_.Controllers
                 await _context.SaveChangesAsync();
             }
 
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleImportant(int id)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null) return RedirectToAction("Login", "Account");
+
+            var note = await _context.Notes.FirstOrDefaultAsync(n => n.Id == id && n.UserId == userId);
+            if (note != null)
+            {
+                note.IsImportant = !note.IsImportant;
+                await _context.SaveChangesAsync();
+            }
             return RedirectToAction(nameof(Index));
         }
     }

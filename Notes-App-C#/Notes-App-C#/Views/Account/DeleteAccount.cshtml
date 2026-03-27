@@ -1,0 +1,30 @@
+﻿@model Notes_App_C_.Models.User
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-danger mt-5">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0">⚠️ Zrušení uživatelského účtu</h4>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">
+                    Tato akce je <strong>nevratná</strong>. Zrušením účtu budou trvale smazány všechny vaše poznámky.
+                </p>
+
+                <form asp-action="DeleteAccount" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="form-group mb-3">
+                        <label class="control-label font-weight-bold">Pro potvrzení zadejte své heslo:</label>
+                        <input type="password" name="password" class="form-control" placeholder="Vaše heslo" required />
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">Zpět</a>
+                        <button type="submit" class="btn btn-danger">Trvale smazat účet</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

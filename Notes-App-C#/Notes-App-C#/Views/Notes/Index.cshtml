@@ -4,6 +4,10 @@
     <h2>Moje poznámky</h2>
     <a asp-action="Create" class="btn btn-primary">➕ Nová poznámka</a>
 </div>
+<div class="mb-3">
+    <a asp-action="Index" asp-route-onlyImportant="false" class="btn @(ViewBag.OnlyImportant ? "btn-light" : "btn-dark")">Všechny</a>
+    <a asp-action="Index" asp-route-onlyImportant="true" class="btn @(ViewBag.OnlyImportant ? "btn-warning" : "btn-light")">Pouze důležité</a>
+</div>
 
 @if (!Model.Any())
 {
@@ -23,6 +27,11 @@ else
                             <small class="text-muted">@item.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</small>
                             <form asp-action="Delete" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Opravdu chcete tuto poznámku smazat?');">
                                 <button type="submit" class="btn btn-sm btn-outline-danger">Smazat</button>
+                            </form>
+                            <form asp-action="ToggleImportant" asp-route-id="@item.Id" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-sm @(item.IsImportant ? "btn-warning" : "btn-outline-secondary")">
+                                    @(item.IsImportant ? "★ Důležité" : "☆ Označit")
+                                </button>
                             </form>
                         </div>
                     </div>
