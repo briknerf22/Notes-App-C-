@@ -12,7 +12,7 @@ RUN dotnet restore
 RUN dotnet publish -c Release -o /app/publish
 
 # 4. Finální obraz
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+FROM mcr.microsoft.com/dotnet/aspnet:9.0
 WORKDIR /app
 COPY --from=build /app/publish .
 
